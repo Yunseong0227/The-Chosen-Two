@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   const { inviteCode } = await req.json();
-
+  console.log("뭐라노");
   // 1. 데이터베이스에서 코드가 일치하는 행을 찾습니다.
   const { data, error } = await supabase
     .from('invites')
