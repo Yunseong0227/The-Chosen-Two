@@ -1,49 +1,48 @@
 'use client';
+
 import { useState } from 'react';
 
 export default function Home() {
   const [code, setCode] = useState('');
-  const [status, setStatus] = useState('');
+  const [message, setMessage] = useState('');
 
-  const checkTicket = async () => {
-    setStatus('확인 중...');
-    const res = await fetch('/api/check-invite', {
-      method: 'POST',
-      body: JSON.stringify({ inviteCode: code }),
-    });
+  const checkInvite = async () => {
+    setMessage('확인 중...');
     
-    const result = await res.json();
-    
-    if (result.allowed) {
-      alert("🎟 입장 성공! THE CHOSEN TWO에 오신 것을 환영합니다.");
-      setStatus('입장 성공');
-    } else {
-      setStatus(result.message);
+    try {
+      // 바로 이 부분이 API를 호출하는(fetch) 핵심 코드입니다!
+      const res = await fetch('/api/check-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage(`✅ 입장 성공! 남은 횟수: ${data.remaining}`);
+      } else {
+        setMessage(`❌ 에러: ${data.error || '알 수 없는 오류'}`);
+      }
+    } catch (err) {
+      setMessage('❌ 서버 연결에 실패했습니다.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-yellow-500 flex flex-col items-center justify-center p-4">
-      <div className="border-2 border-yellow-500 p-12 text-center rounded-lg shadow-[0_0_20px_rgba(234,179,8,0.3)]">
-        <h1 className="text-5xl font-black mb-8 tracking-tighter">THE CHOSEN TWO</h1>
-        <p className="mb-8 text-yellow-200/60 uppercase tracking-widest text-sm">Limited to two per ticket</p>
-        
-        <input 
-          className="bg-zinc-900 border border-yellow-500/50 p-4 text-center text-xl w-full focus:outline-none focus:border-yellow-500"
-          value={code} 
-          onChange={(e) => setCode(e.target.value.toUpperCase())} 
-          placeholder="ENTER YOUR CODE" 
-        />
-        
-        <button 
-          className="mt-6 w-full bg-yellow-500 text-black py-4 font-bold text-lg hover:bg-yellow-400 transition-colors"
-          onClick={checkTicket}
-        >
-          티켓 확인하기
-        </button>
-        
-        {status && <p className="mt-6 text-sm font-medium">{status}</p>}
-      </div>
-    </div>
+    <main style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>THE CHOSEN TWO</h1>
+      <input 
+        type="text" 
+        value={code} 
+        onChange={(e) => setCode(e.target.value)} 
+        placeholder="초대 코드를 입력하세요"
+        style={{ padding: '0.5rem', color: 'black' }}
+      />
+      <button onClick={checkInvite} style={{ marginLeft: '0.5rem', padding: '0.5rem' }}>
+        입장하기
+      </button>
+      <p style={{ marginTop: '1rem' }}>{message}</p>
+    </main>
   );
 }
