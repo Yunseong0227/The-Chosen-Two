@@ -1,23 +1,53 @@
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Next.js App Router의 표준 규격입니다.
-export const runtime = 'nodejs'; // 런타임 명시
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    console.log("들어온 데이터:", data);
+    const { code } = await request.json();
+
+    if (!code || code.trim() === "") {
+      return NextResponse.json({ error: '코드를 입력해 주세요.' }, { status: 400 });
+    }
+
+    // 1. Supabase에서 코드를 찾을 때 'count' 컬럼도 같이 가져옵니다.
+    const { data: invite, error } = await supabase
+      .from('invites')
+      .select('code, count') // 'remaining' 대신 'count' 사용
+      .eq('code', code)
+      .single();
+
+    if (error || !invite) {
+      return NextResponse.json({ error: '존재하지 않는 코드입니다.' }, { status: 404 });
+    }
+
+    // 2. 남은 횟수(count) 확인
+    if (invite.count <= 0) {
+      return NextResponse.json({ error: '사용 횟수가 초과된 코드입니다.' }, { status: 400 });
+    }
+
+    // 3. 횟수(count) 1 차감 업데이트
+    const { data: updated, error: updateError } = await supabase
+      .from('invites')
+      .update({ count: invite.count - 1 }) // 'count'를 하나 줄임
+      .eq('code', code)
+      .select()
+      .single();
+
+    if (updateError) {
+      return NextResponse.json({ error: '데이터 업데이트 실패' }, { status: 500 });
+    }
 
     return NextResponse.json({ 
-      message: "API 연결 성공!", 
-      remaining: 99 
+      success: true, 
+      remaining: updated.count // 화면에는 줄어든 count를 보여줌
     });
-  } catch (error) {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-}
 
-// 404 방지용: GET 요청이 와도 응답하도록 추가
-export async function GET() {
-  return NextResponse.json({ message: "API 주소는 살아있습니다!" });
+  } catch (err) {
+    return NextResponse.json({ error: '서버 통신 오류' }, { status: 500 });
+  }
 }
