@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
 
-// 반드시 'POST' 대문자여야 합니다!
+// Next.js App Router의 표준 규격입니다.
+export const runtime = 'nodejs'; // 런타임 명시
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { code } = body;
+    const data = await request.json();
+    console.log("들어온 데이터:", data);
 
-    console.log("받은 코드:", code);
-
-    // 우선 테스트를 위해 무조건 성공을 반환해봅시다.
     return NextResponse.json({ 
-      success: true, 
-      remaining: 1 
-    }, { status: 200 });
-
+      message: "API 연결 성공!", 
+      remaining: 99 
+    });
   } catch (error) {
-    return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
+}
+
+// 404 방지용: GET 요청이 와도 응답하도록 추가
+export async function GET() {
+  return NextResponse.json({ message: "API 주소는 살아있습니다!" });
 }
