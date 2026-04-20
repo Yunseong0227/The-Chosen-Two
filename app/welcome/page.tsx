@@ -9,7 +9,7 @@ export default function WelcomePage() {
       <h1 className={styles.title}>WELCOME TO THE CHOSEN TWO</h1>
       <p className={styles.description}>
         당신은 선택받은 소수 중 한 명입니다. <br />
-        이제 특별한 커뮤니티의 일원이 되었습니다.
+        누구에게 초대를 보내시겠습니까?
       </p>
       
       <div className={styles.contentCard}>
@@ -21,9 +21,7 @@ export default function WelcomePage() {
         </ul>
       </div>
 
-      <Link href="/" className={styles.backButton}>
-        처음으로 돌아가기
-      </Link>
+    
     </main>
   );
 }
