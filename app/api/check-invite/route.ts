@@ -1,3 +1,4 @@
+export const runtime = 'edge'; // 속도 개선
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
