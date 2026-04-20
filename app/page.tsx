@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 1. 라우터 불러오기
 import styles from './Home.module.css'; // CSS 모듈 불러오기
 
 export default function Home() {
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter(); // 2. 라우터 초기화   
+  
   const checkInvite = async () => {
     if (!code.trim()) return alert('코드를 입력해주세요!');
     setIsLoading(true);
@@ -22,7 +24,10 @@ export default function Home() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(`✨ 축하합니다! 남은 초대 권한: ${data.remaining}회`);
+        setMessage(`✨ 인증 성공! 잠시 후 입장합니다...`);
+        setTimeout(() => {
+          router.push('/welcome'); 
+        }, 1500);
       } else {
         setMessage(`🚫 ${data.error}`);
       }
