@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     if (!code || code.trim() === "") {
       return NextResponse.json({ error: '코드를 입력해 주세요.' }, { status: 400 });
     }
+    console.log("찾으려는 코드:", code); // 추가
 
     // 1. Supabase에서 코드를 찾을 때 'count' 컬럼도 같이 가져옵니다.
     const { data: invite, error } = await supabase
