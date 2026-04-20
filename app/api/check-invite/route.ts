@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     // 1. Supabase에서 코드를 찾을 때 'count' 컬럼도 같이 가져옵니다.
     const { data: invite, error } = await supabase
       .from('invites')
-      .select('code, count') // 'remaining' 대신 'count' 사용
+      .select('code, count') 
       .eq('code', code)
       .single();
 

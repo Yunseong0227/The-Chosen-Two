@@ -1,0 +1,119 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+  background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+.loader {
+  font-size: 1.2rem;
+  color: #888;
+  letter-spacing: 0.2rem;
+  animation: pulse 1.5s infinite alternate;
+}
+
+.card {
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  color: #888;
+  letter-spacing: 0.2rem;
+}
+
+.inviterName {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-top: 0.5rem;
+  letter-spacing: 0.1rem;
+}
+
+.messageBox {
+  background: #111;
+  border-left: 3px solid #4ade80;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+  text-align: left;
+  border-radius: 0 8px 8px 0;
+}
+
+.messageText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #ddd;
+  font-style: italic;
+}
+
+.statusBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #aaa;
+}
+
+.highlight {
+  color: #f87171; /* 남은 자리가 적을 때 긴장감을 주는 빨간색 포인트 */
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.pulse {
+  width: 10px;
+  height: 10px;
+  background-color: #f87171;
+  border-radius: 50%;
+  animation: pulse 1s infinite alternate;
+}
+
+.joinButton {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background-color: #4ade80;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.1rem;
+}
+
+.joinButton:hover:not(:disabled) {
+  background-color: #22c55e;
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+}
+
+.joinButton:disabled {
+  background-color: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* 에러 화면 스타일 */
+.errorTitle { color: #f87171; font-size: 2rem; margin-bottom: 1rem; }
+.errorText { color: #888; }
+
+@keyframes pulse {
+  from { opacity: 0.4; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.1); }
+}
