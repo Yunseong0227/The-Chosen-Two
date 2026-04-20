@@ -51,3 +51,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: '서버 통신 오류' }, { status: 500 });
   }
 }
+
+// 기존 POST 함수 아래에 추가
+export async function GET() {
+  return NextResponse.json({ 
+    message: "API 서버가 정상 작동 중입니다!",
+    method: "GET 요청을 확인했습니다. 실제 코드는 POST로 보내주세요." 
+  });
+}
