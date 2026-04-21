@@ -1,11 +1,7 @@
 export const runtime = 'edge'; // 속도 개선
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase'; // 공용 클라이언트로 교체
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +10,13 @@ export async function POST(request: Request) {
     if (!code || code.trim() === "") {
       return NextResponse.json({ error: '코드를 입력해 주세요.' }, { status: 400 });
     }
-    console.log("찾으려는 코드:", code); // 추가
+    
+    // DB 연결 확인 (방어 로직)
+    if (!supabase) {
+      return NextResponse.json({ error: 'DB 연결 설정이 누락되었습니다.' }, { status: 500 });
+    }
+
+    console.log("찾으려는 코드:", code);
 
     // 1. Supabase에서 코드를 찾을 때 'count' 컬럼도 같이 가져옵니다.
     const { data: invite, error } = await supabase
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
     // 3. 횟수(count) 1 차감 업데이트
     const { data: updated, error: updateError } = await supabase
       .from('invites')
-      .update({ count: invite.count - 1 }) // 'count'를 하나 줄임
+      .update({ count: invite.count - 1 })
       .eq('code', code)
       .select()
       .single();
@@ -46,15 +48,15 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      remaining: updated.count // 화면에는 줄어든 count를 보여줌
+      remaining: updated.count 
     });
 
   } catch (err) {
+    console.error("Server Error:", err);
     return NextResponse.json({ error: '서버 통신 오류' }, { status: 500 });
   }
 }
 
-// 기존 POST 함수 아래에 추가
 export async function GET() {
   return NextResponse.json({ 
     message: "API 서버가 정상 작동 중입니다!",
