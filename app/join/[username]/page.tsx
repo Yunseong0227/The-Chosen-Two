@@ -2,78 +2,84 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase'; // 설정한 supabase 불러오기
+import { supabase } from '@/lib/supabase';
 import styles from './join.module.css';
 
 export default function JoinPage() {
   const params = useParams();
   const router = useRouter();
-  const username = params.username;
+  const inviterUsername = params.username as string;
 
+  const [myUsername, setMyUsername] = useState('');
   const [inviteData, setInviteData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchInviter() {
-      // 1. DB에서 해당 username을 가진 유저 정보 가져오기
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
-        .select('username, invite_count, invite_message, is_active')
-        .eq('username', username)
+        .select('*')
+        .eq('username', inviterUsername)
         .single();
-
-      if (error || !data) {
-        setInviteData({ isValid: false });
-      } else {
-        setInviteData({
-          message: data.invite_message,
-          remaining: data.invite_count,
-          isActive: data.is_active,
-          isValid: true,
-        });
-      }
+      
+      setInviteData(data);
       setIsLoading(false);
     }
+    fetchInviter();
+  }, [inviterUsername]);
 
-    if (username) fetchInviter();
-  }, [username]);
+  const handleRegister = async () => {
+    if (!myUsername.trim()) return alert('사용할 이름을 입력해주세요.');
+    
+    setIsSubmitting(true);
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        newUsername: myUsername,
+        inviterUsername: inviterUsername
+      })
+    });
 
-  const handleJoin = async () => {
-    // 가입 로직 (추후 구현: 여기서는 성공 가정)
-    alert('환영합니다!');
-    router.push('/welcome');
+    const result = await response.json();
+
+    if (result.success) {
+      alert('축하합니다! 선택받으셨습니다.');
+      router.push('/welcome'); // 본인의 초대 링크를 확인할 수 있는 페이지로 이동
+    } else {
+      alert(result.error || '가입에 실패했습니다.');
+    }
+    setIsSubmitting(false);
   };
 
-  if (isLoading) return <main className={styles.container}><div className={styles.loader}>초대장 확인 중...</div></main>;
-
-  if (!inviteData?.isValid || !inviteData?.isActive || inviteData?.remaining === 0) {
-    return (
-      <main className={styles.container}>
-        <h1 className={styles.errorTitle}>ACCESS DENIED</h1>
-        <p className={styles.errorText}>이 초대장은 더 이상 유효하지 않거나 존재하지 않습니다.</p>
-      </main>
-    );
-  }
+  if (isLoading) return <div className={styles.container}>초대장 확인 중...</div>;
 
   return (
     <main className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.header}>
-          <span className={styles.eyebrow}>INVITATION FROM</span>
-          <h1 className={styles.inviterName}>@{username}</h1>
-        </div>
-
-        <div className={styles.messageBox}>
-          <p className={styles.messageText}>"{inviteData.message}"</p>
+        <h1 className={styles.inviterName}>@{inviterUsername}님의 초대</h1>
+        <p className={styles.messageText}>"{inviteData?.invite_message}"</p>
+        
+        <div className={styles.inputGroup}>
+          <input 
+            type="text" 
+            placeholder="사용할 이름을 입력하세요"
+            className={styles.input}
+            value={myUsername}
+            onChange={(e) => setMyUsername(e.target.value)}
+          />
         </div>
 
         <div className={styles.statusBox}>
-          <div className={styles.pulse}></div>
-          <p>현재 남은 자리: <span className={styles.highlight}>{inviteData.remaining}</span> / 2</p>
+          남은 자리: {inviteData?.invite_count} / 2
         </div>
 
-        <button className={styles.joinButton} onClick={handleJoin}>
-          초대 수락 및 입장하기
+        <button 
+          className={styles.joinButton} 
+          onClick={handleRegister}
+          disabled={isSubmitting || inviteData?.invite_count <= 0}
+        >
+          {isSubmitting ? '처리 중...' : 'THE CHOSEN TWO 입장하기'}
         </button>
       </div>
     </main>
