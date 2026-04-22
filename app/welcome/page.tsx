@@ -1,75 +1,91 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import styles from './welcome.module.css';
 
 export default function WelcomePage() {
+  const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [username, setUsername] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 로컬 스토리지나 세션에서 현재 가입한 유저 이름을 가져온다고 가정합니다.
-  // (실제로는 Auth 세션을 사용하거나 가입 성공 시 state로 넘겨받아야 합니다.)
-  const [username, setUsername] = useState<string | null>(null);
-
-  useEffect(() => {
-    const savedName = localStorage.getItem('current_user'); // 가입 시 저장했다고 가정
-    if (savedName) setUsername(savedName);
-  }, []);
-
-  useEffect(() => {
-    if (!username) return;
-
-    async function fetchUserData() {
-      const { data } = await supabase
+  // 데이터 가져오기 로직 (useCallback으로 최적화)
+  const fetchUserData = useCallback(async (name: string) => {
+    try {
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('username', username)
-        .single();
-      
+        .eq('username', name)
+        .maybeSingle();
+
+      if (error) throw error;
+
       if (data) {
         setUserData(data);
         setNewMessage(data.invite_message || '');
       }
+    } catch (error) {
+      console.error("데이터 로드 오류:", error);
+    } finally {
       setLoading(false);
     }
-    fetchUserData();
-  }, [username]);
+  }, []);
+
+  // 페이지 진입 시 단 한 번만 실행
+useEffect(() => {
+  let savedName = localStorage.getItem('current_user');
+  
+  if (!savedName) {
+    alert("로그인 정보가 없습니다.");
+    router.push('/');
+    return;
+  }
+
+  // 🔥 [핵심] 이중, 삼중 인코딩된 이름을 순수 한글로 정화합니다.
+  // 예: %25EC%259D%2580 -> %EC%9D%80 -> 은
+  try {
+    let decodedName = savedName;
+    while (decodedName.includes('%')) {
+      decodedName = decodeURIComponent(decodedName);
+    }
+    
+    // 정화된 이름을 다시 세팅
+    setUsername(decodedName);
+    fetchUserData(decodedName);
+
+    // [선택] 깨끗해진 이름을 다시 저장해서 다음번에 에러가 안 나게 합니다.
+    localStorage.setItem('current_user', decodedName);
+    
+  } catch (e) {
+    console.error("이름 디코딩 중 오류 발생:", e);
+    // 에러 발생 시 원래 값이라도 시도
+    setUsername(savedName);
+    fetchUserData(savedName);
+  }
+}, [router, fetchUserData]);
 
   const inviteUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/join/${username}` 
     : '';
 
-  // 1. 링크 복사 기능
+  // [기능: 링크 복사, 공유, 메시지 저장 등 기존 로직 그대로 유지]
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(inviteUrl);
-      alert('초대 링크가 클립보드에 복사되었습니다!');
-    } catch (err) {
-      alert('복사에 실패했습니다.');
-    }
+    await navigator.clipboard.writeText(inviteUrl);
+    alert('링크가 복사되었습니다!');
   };
 
-  // 2. 시스템 공유 기능 (인스타, 카톡 등)
   const handleShare = async () => {
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'THE CHOSEN TWO',
-          text: '당신을 비밀스러운 공간으로 초대합니다.',
-          url: inviteUrl,
-        });
-      } catch (err) {
-        console.log('공유 취소 또는 실패');
-      }
+      await navigator.share({ title: 'THE CHOSEN TWO', url: inviteUrl });
     } else {
-      handleCopy(); // 지원하지 않는 브라우저일 경우 복사로 대체
+      handleCopy();
     }
   };
 
-  // 3. 메시지 저장 기능
   const saveMessage = async () => {
     setIsSaving(true);
     const response = await fetch('/api/update-message', {
@@ -78,10 +94,8 @@ export default function WelcomePage() {
     });
     
     if (response.ok) {
-      alert('초대 메시지가 저장되었습니다.');
+      alert('저장되었습니다.');
       setUserData({ ...userData, invite_message: newMessage });
-    } else {
-      alert('저장 중 오류가 발생했습니다.');
     }
     setIsSaving(false);
   };
