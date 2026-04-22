@@ -44,6 +44,7 @@ export default function JoinPage() {
     const result = await response.json();
 
     if (result.success) {
+      localStorage.setItem('current_user', myUsername);
       alert('축하합니다! 선택받으셨습니다.');
       router.push('/welcome'); // 본인의 초대 링크를 확인할 수 있는 페이지로 이동
     } else {

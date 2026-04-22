@@ -1,76 +1,110 @@
 .container {
   min-height: 100vh;
+  background: #000;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #000;
-  color: #fff;
   padding: 20px;
-  text-align: center;
-}
-
-.title {
-  font-size: 3rem;
   color: #fff;
-  letter-spacing: 0.5rem;
-  margin-bottom: 1.5rem;
-  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
 }
 
-.description {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  margin-bottom: 3rem;
-  color: #888;
-}
-
-.contentCard {
-  background-color: #0a0a0a;
+.card {
+  background: #0a0a0a;
   border: 1px solid #222;
-  padding: 3rem 2rem;
-  border-radius: 12px;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 500px;
   width: 100%;
-  max-width: 450px;
-  margin-bottom: 2.5rem;
+  box-shadow: 0 0 40px rgba(74, 222, 128, 0.1);
 }
 
-.codeBox {
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.3rem;
+.badge {
+  display: inline-block;
+  background: rgba(74, 222, 128, 0.1);
   color: #4ade80;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.title { font-size: 24px; margin-bottom: 30px; }
+
+.statsSection { text-align: center; margin-bottom: 40px; }
+.statLabel { color: #888; font-size: 14px; margin-bottom: 8px; }
+.inviteCount { font-size: 48px; font-weight: bold; color: #4ade80; }
+.inviteCount span { font-size: 20px; color: #444; }
+
+.label { display: block; color: #888; font-size: 13px; margin-bottom: 10px; }
+
+.urlBox {
   background: #111;
+  border: 1px solid #333;
   padding: 15px;
-  margin: 20px 0;
-  border: 1px dashed #4ade80;
+  border-radius: 8px;
+  margin-bottom: 30px;
 }
 
-.subText {
-  font-size: 0.9rem;
-  color: #666;
+.urlText {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 15px;
+  word-break: break-all;
 }
 
-/* 초대하기 버튼 스타일 */
-.inviteButton {
-  padding: 16px 40px;
-  font-size: 1rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-  background-color: #4ade80; /* 강조 색상 */
+.buttonGroup { display: flex; gap: 10px; }
+
+.primaryButton {
+  flex: 1;
+  background: #4ade80;
   color: #000;
   border: none;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.inviteButton:hover {
-  background-color: #22c55e;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(74, 222, 128, 0.2);
+.iconButton {
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.inviteButton:active {
-  transform: translateY(0);
+.textarea {
+  width: 100%;
+  height: 100px;
+  background: #111;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  resize: none;
+}
+
+.saveButton {
+  width: 100%;
+  background: none;
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.previewBox { margin-top: 30px; border-top: 1px solid #222; pt: 20px; }
+.previewLabel { font-size: 12px; color: #555; margin-bottom: 10px; }
+.bubble {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 12px;
+  border-left: 4px solid #4ade80;
+  font-style: italic;
+  color: #ccc;
 }
