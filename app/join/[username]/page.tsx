@@ -55,6 +55,15 @@ export default function JoinPage() {
     fetchInviter();
   }, [params.username]);
 
+  // 2. 🔥 [핵심] useEffect는 항상 최상단에! 
+  // LOADING 단계가 되면 자동으로 2초 후 INVITE로 전환
+  useEffect(() => {
+    if (step === 'LOADING') {
+      const timer = setTimeout(() => setStep('INVITE'), 2000);
+      return () => clearTimeout(timer); // 메모리 누수 방지
+    }
+  }, [step]);
+  
   // 3. 가입 처리 함수
   const handleRegister = async () => {
     if (!myUsername.trim()) return alert('사용할 이름을 입력해주세요.');
