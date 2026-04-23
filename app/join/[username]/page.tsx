@@ -15,6 +15,7 @@ export default function JoinPage() {
   const [inviteData, setInviteData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState('LANDING');
 
   // 2. 초대자 정보 불러오기 (한글 인코딩 해결 버전)
   useEffect(() => {
@@ -86,6 +87,27 @@ export default function JoinPage() {
       setIsSubmitting(false);
     }
   };
+  // 1. 첫 화면 (Landing)
+  if (step === 'LANDING') {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>당신은 선택받으셨습니까?</h1>
+        <button className={styles.enterButton} onClick={() => setStep('LOADING')}>
+          비밀의 문 열기
+        </button>
+      </div>
+    );
+  }
+  // 2. 로딩 화면 (Loading)
+  if (step === 'LOADING') {
+    useEffect(() => {
+      const timer = setTimeout(() => setStep('INVITE'), 2000); // 2초 뒤 공개
+      return () => clearTimeout(timer);
+    }, []);
+    
+    return <div className={styles.loading}>초대장을 스캔 중입니다...</div>;
+  }
+ 
 
   if (isLoading) return <div className={styles.container}>초대장 확인 중...</div>;
 
@@ -101,36 +123,37 @@ export default function JoinPage() {
       </div>
     );
   }
+  if (step === 'INVITE') {
+    return (
+      <main className={styles.container}>
+        <div className={styles.card}>
+          {/* 깨끗하게 디코딩된 이름을 보여줍니다 */}
+          <h1 className={styles.inviterName}>@{decodedInviterName}님의 초대</h1>
+          <p className={styles.messageText}>"{inviteData?.invite_message || '당신을 초대합니다.'}"</p>
+          
+          <div className={styles.inputGroup}>
+            <input 
+              type="text" 
+              placeholder="사용할 이름을 입력하세요"
+              className={styles.input}
+              value={myUsername}
+              onChange={(e) => setMyUsername(e.target.value)}
+            />
+          </div>
 
-  return (
-    <main className={styles.container}>
-      <div className={styles.card}>
-        {/* 깨끗하게 디코딩된 이름을 보여줍니다 */}
-        <h1 className={styles.inviterName}>@{decodedInviterName}님의 초대</h1>
-        <p className={styles.messageText}>"{inviteData?.invite_message || '당신을 초대합니다.'}"</p>
-        
-        <div className={styles.inputGroup}>
-          <input 
-            type="text" 
-            placeholder="사용할 이름을 입력하세요"
-            className={styles.input}
-            value={myUsername}
-            onChange={(e) => setMyUsername(e.target.value)}
-          />
+          <div className={styles.statusBox}>
+            남은 자리: {inviteData?.invite_count ?? 0} / 2
+          </div>
+
+          <button 
+            className={styles.joinButton} 
+            onClick={handleRegister}
+            disabled={isSubmitting || (inviteData?.invite_count <= 0)}
+          >
+            {isSubmitting ? '처리 중...' : 'THE CHOSEN TWO 입장하기'}
+          </button>
         </div>
-
-        <div className={styles.statusBox}>
-          남은 자리: {inviteData?.invite_count ?? 0} / 2
-        </div>
-
-        <button 
-          className={styles.joinButton} 
-          onClick={handleRegister}
-          disabled={isSubmitting || (inviteData?.invite_count <= 0)}
-        >
-          {isSubmitting ? '처리 중...' : 'THE CHOSEN TWO 입장하기'}
-        </button>
-      </div>
-    </main>
-  );
+      </main>
+    );
+  }
 }
