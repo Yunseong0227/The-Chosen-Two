@@ -109,60 +109,44 @@ export default function JoinPage() {
   }
   // 2. 로딩 화면 (Loading)
   if (step === 'LOADING') {
-    useEffect(() => {
-      const timer = setTimeout(() => setStep('INVITE'), 2000); // 2초 뒤 공개
-      return () => clearTimeout(timer);
-    }, []);
-    
     return <div className={styles.loading}>초대장을 스캔 중입니다...</div>;
   }
- 
 
   if (isLoading) return <div className={styles.container}>초대장 확인 중...</div>;
 
-  // 초대자가 존재하지 않을 경우의 예외 처리
   if (!inviteData) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <h1 className={styles.inviterName}>존재하지 않는 초대장</h1>
-          <p className={styles.messageText}>이미 만료되었거나 잘못된 링크입니다.</p>
-          <button onClick={() => router.push('/')} className={styles.joinButton}>홈으로 이동</button>
+    return <div className={styles.container}><div className={styles.card}><h1>존재하지 않는 초대장입니다.</h1></div></div>;
+  }
+ 
+  return (
+    <main className={styles.container}>
+      <div className={styles.card}>
+        {/* 깨끗하게 디코딩된 이름을 보여줍니다 */}
+        <h1 className={styles.inviterName}>@{decodedInviterName}님의 초대</h1>
+        <p className={styles.messageText}>"{inviteData?.invite_message || '당신을 초대합니다.'}"</p>
+        
+        <div className={styles.inputGroup}>
+          <input 
+            type="text" 
+            placeholder="사용할 이름을 입력하세요"
+            className={styles.input}
+            value={myUsername}
+            onChange={(e) => setMyUsername(e.target.value)}
+          />
         </div>
+
+        <div className={styles.statusBox}>
+          남은 자리: {inviteData?.invite_count ?? 0} / 2
+        </div>
+
+        <button 
+          className={styles.joinButton} 
+          onClick={handleRegister}
+          disabled={isSubmitting || (inviteData?.invite_count <= 0)}
+        >
+          {isSubmitting ? '처리 중...' : 'THE CHOSEN TWO 입장하기'}
+        </button>
       </div>
-    );
-  }
-  if (step === 'INVITE') {
-    return (
-      <main className={styles.container}>
-        <div className={styles.card}>
-          {/* 깨끗하게 디코딩된 이름을 보여줍니다 */}
-          <h1 className={styles.inviterName}>@{decodedInviterName}님의 초대</h1>
-          <p className={styles.messageText}>"{inviteData?.invite_message || '당신을 초대합니다.'}"</p>
-          
-          <div className={styles.inputGroup}>
-            <input 
-              type="text" 
-              placeholder="사용할 이름을 입력하세요"
-              className={styles.input}
-              value={myUsername}
-              onChange={(e) => setMyUsername(e.target.value)}
-            />
-          </div>
-
-          <div className={styles.statusBox}>
-            남은 자리: {inviteData?.invite_count ?? 0} / 2
-          </div>
-
-          <button 
-            className={styles.joinButton} 
-            onClick={handleRegister}
-            disabled={isSubmitting || (inviteData?.invite_count <= 0)}
-          >
-            {isSubmitting ? '처리 중...' : 'THE CHOSEN TWO 입장하기'}
-          </button>
-        </div>
-      </main>
-    );
-  }
+    </main>
+  );
 }
