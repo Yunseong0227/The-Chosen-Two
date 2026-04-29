@@ -99,12 +99,19 @@ export default function JoinPage() {
   // 1. 첫 화면 (Landing)
   if (step === 'LANDING') {
     return (
-      <div className={styles.container}>
-        <h1 className={styles.title}>당신은 선택받으셨습니까?</h1>
-        <button className={styles.enterButton} onClick={() => setStep('LOADING')}>
-          비밀의 문 열기
-        </button>
-      </div>
+      <main className={styles.container}>
+        <div className={styles.landingContent}>
+          <div className={styles.topBadge}>THE CHOSEN TWO</div>
+          <h1 className={styles.title}>당신 앞으로 도착한<br/>단 하나의 메시지</h1>
+          <p className={styles.subtitle}>
+            이 문 너머에 무엇이 기다리고 있는지는<br/>
+            오직 보낸 사람만이 알고 있습니다.
+          </p>
+          <button className={styles.enterButton} onClick={() => setStep('LOADING')}>
+            메시지 확인하기
+          </button>
+        </div>
+      </main>
     );
   }
   // 2. 로딩 화면 (Loading)
